@@ -8,6 +8,8 @@ car_model = BayesianNetwork(
         ("Ignition","Starts"),
         ("Gas","Starts"),
         ("Starts","Moves")
+        # ("KeyPresent","Ignition"),
+        # ("KeyPresent","Gas"),
     ]
 )
 
@@ -77,13 +79,22 @@ if __name__ == "__main__":
     q2 = car_infer.query(variables=["Starts"],evidence={"Radio":"Doesn't turn on"})
     print("Chances that the car will not start given that the radio is not working: \n", q2)
 
-    # Given that the battery is working, does the probability of the radio working change if we discover that the car has gas in it?
-    q3 = car_infer.query(variables=["Radio"],evidence={"Battery":"Works","Gas":"Full"})
-    print("Chances that the radio works given that the battery is working and the car has gas: \n", q3)
+    # Probability that the radio works given that the battery works (and we don't know if the car has gas in it)
+    q3a = car_infer.query(variables=["Radio"],evidence={"Battery":"Works"})
+    print("Chances that the radio works given that the battery is working: \n", q3a)
+    
+    # Probability that the radio works given that the battery is working and (we know) the car has gas in it
+    q3b = car_infer.query(variables=["Radio"],evidence={"Battery":"Works","Gas":"Full"})
+    print("Chances that the radio works given that the battery is working and the car has gas: \n", q3b)
+    
 
-    # Given that the car doesn't move, how does the probability of the ignition failing change if we observe that the car dies not have gas in it?
-    q4 = car_infer.query(variables=["Ignition"],evidence={"Moves":"no","Gas":"Empty"})
-    print("Chances that the ignition fails given that the car doesn't move and it doesn't have gas: \n", q4)
+    # Probability that the car doesn't start given that the car doesn't move (and we don't know if the car has gas in it)
+    q4a = car_infer.query(variables=["Ignition"],evidence={"Moves":"no"})
+    print("Chances that the car doesn't start given that the car doesn't move: \n", q4a)
+    
+    # Probability that the car doesn't start given that the car doesn't move and (we know) the car does not have gas in it
+    q4b = car_infer.query(variables=["Ignition"],evidence={"Moves":"no","Gas":"Empty"})
+    print("Chances that the car doesn't start given that the car doesn't move and the car has gas: \n", q4b)
 
     # What is the probability that the car starts if the radio works and it has gas in it?
     q5 = car_infer.query(variables=["Starts"],evidence={"Radio":"turns on","Gas":"Full"})
