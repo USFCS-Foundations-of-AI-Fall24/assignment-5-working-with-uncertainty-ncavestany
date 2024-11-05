@@ -44,14 +44,6 @@ cpd_ignition = TabularCPD(
                  "Battery": ['Works',"Doesn't work"]}
 )
 
-# P(starts | gas, ignition, keyPresent) = 0.99
-# P(starts | gas, !ignition, keyPresent) = 0.01
-# P(starts | !gas, ignition, keyPresent) = 0.01
-# P(starts | gas, ignition, !keyPresent) = 0.01
-# P(starts | !gas, !ignition, keyPresent) = 0.01
-# P(starts | !gas, ignition, !keyPresent) = 0.01
-# P(starts | gas, !ignition, !keyPresent) = 0.01 
-# P(starts | !gas, !ignition, !keyPresent) = 0.01
 cpd_starts = TabularCPD(
     variable="Starts",
     variable_card=2,
