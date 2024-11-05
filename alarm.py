@@ -43,7 +43,7 @@ cpd_marycalls = TabularCPD(
     values=[[0.1, 0.7], [0.9, 0.3]],
     evidence=["Alarm"],
     evidence_card=[2],
-state_names={"Alarm":['yes','no'], "MaryCalls":['yes', 'no']},
+    state_names={"Alarm":['yes','no'], "MaryCalls":['yes', 'no']},
 )
 
 # Associating the parameters with the model structure
@@ -52,7 +52,20 @@ alarm_model.add_cpds(
 
 alarm_infer = VariableElimination(alarm_model)
 
-print(alarm_infer.query(variables=["JohnCalls"],evidence={"Earthquake":"yes"}))
-q = alarm_infer.query(variables=["JohnCalls", "Earthquake"],evidence={"Burglary":"yes","MaryCalls":"yes"}))
-print(q)
 
+if __name__ == "__main__":
+    print(alarm_infer.query(variables=["JohnCalls"],evidence={"Earthquake":"yes"})) # probability of JohnCalls given Earthquake = yes
+    q = alarm_infer.query(variables=["JohnCalls", "Earthquake"],evidence={"Burglary":"yes","MaryCalls":"yes"}) # probability that JohnCalls and Earthquake given Burglary = yes and MaryCalls = yes
+    print(q)
+
+    # probability of MaryCalls given JohnCalls = yes
+    q1 = alarm_infer.query(variables=["MaryCalls"],evidence={"JohnCalls":"yes"})
+    print("Probability that Mary calls given that John called:\n", q1)
+
+    # The probability of both John and Mary calling given Alarm
+    q2 = alarm_infer.query(variables=["JohnCalls", "MaryCalls"],evidence={"Alarm":"yes"})
+    print("Probability that Mary and John call given that the alarm is going off:\n", q2)
+
+    # the probability of Alarm, given that Mary called
+    q3 = alarm_infer.query(variables=["Alarm"],evidence={"MaryCalls":"yes"})
+    print("Probability that the alarm is going off given that Mary called:\n", q3)
