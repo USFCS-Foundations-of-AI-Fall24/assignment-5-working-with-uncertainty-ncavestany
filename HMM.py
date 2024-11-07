@@ -41,26 +41,24 @@ class HMM:
         as well as the probabilities."""
         emitFile = basename + ".emit"
         transFile = basename + ".trans"
-        emissions = {}
-        transitions = {}
+
         
         with open(emitFile) as f:
             for line in f:
                 line = line.split()
-                if line[0] not in emissions:
-                    emissions[line[0]] = {}
-                emissions[line[0]][line[1]] = line[2]
+                if line[0] not in self.emissions:
+                    self.emissions[line[0]] = {}
+                self.emissions[line[0]][line[1]] = float(line[2])
                 
         with open(transFile) as f:
             for line in f:
                 line = line.split()
-                if line[0] not in transitions:
-                    transitions[line[0]] = {}
-                transitions[line[0]][line[1]] = line[2]
+                if line[0] not in self.transitions:
+                    self.transitions[line[0]] = {}
+                self.transitions[line[0]][line[1]] = float(line[2])
                     
-        return transitions, emissions
+        return self.transitions, self.emissions
         
-
 
    ## you do this.
     def generate(self, n):
@@ -80,5 +78,7 @@ class HMM:
 
 # main class
 if __name__ == "__main__":
-    trans, emissions = HMM().load("cat")
-    print(trans)
+    hmm = HMM()
+    hmm.load("cat")
+    
+    
