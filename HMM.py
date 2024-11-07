@@ -79,7 +79,7 @@ class HMM:
 
     def forward(self, sequence):
         pass
-    ## you do this: Implement the Viterbi algorithm. Given a Sequence with a list of emissions,
+    ## you do this: Implement the forward algorithm. Given a Sequence with a list of emissions,
     ## determine the most likely sequence of states.
 
 
@@ -93,6 +93,7 @@ if __name__ == "__main__":
     hmm = HMM()
     hmm.load("cat")
     print(hmm.generate(10))
+
     
     
     
