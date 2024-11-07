@@ -1,5 +1,3 @@
-
-
 import random
 import argparse
 import codecs
@@ -26,10 +24,13 @@ class HMM:
         """creates a model from transition and emission probabilities
         e.g. {'happy': {'silent': '0.2', 'meow': '0.3', 'purr': '0.5'},
               'grumpy': {'silent': '0.5', 'meow': '0.4', 'purr': '0.1'},
-              'hungry': {'silent': '0.2', 'meow': '0.6', 'purr': '0.2'}}"""
-
-
-
+              'hungry': {'silent': '0.2', 'meow': '0.6', 'purr': '0.2'}}
+              
+        trans{    
+            {'happy': {'happy': '0.5', 'grumpy': '0.1', 'hungry': '0.4'},
+            {'grumpy': {'happy': '0.6', 'grumpy': '0.3', 'hungry': '0.1'},
+            {'hungry': {'happy': '0.1', 'grumpy': '0.6', 'hungry': '0.3'}}"""
+              
         self.transitions = transitions
         self.emissions = emissions
 
@@ -38,7 +39,27 @@ class HMM:
         """reads HMM structure from transition (basename.trans),
         and emission (basename.emit) files,
         as well as the probabilities."""
-        pass
+        emitFile = basename + ".emit"
+        transFile = basename + ".trans"
+        emissions = {}
+        transitions = {}
+        
+        with open(emitFile) as f:
+            for line in f:
+                line = line.split()
+                if line[0] not in emissions:
+                    emissions[line[0]] = {}
+                emissions[line[0]][line[1]] = line[2]
+                
+        with open(transFile) as f:
+            for line in f:
+                line = line.split()
+                if line[0] not in transitions:
+                    transitions[line[0]] = {}
+                transitions[line[0]][line[1]] = line[2]
+                    
+        return transitions, emissions
+        
 
 
    ## you do this.
@@ -52,17 +73,12 @@ class HMM:
     ## determine the most likely sequence of states.
 
 
-
-
-
-
     def viterbi(self, sequence):
         pass
     ## You do this. Given a sequence with a list of emissions, fill in the most likely
     ## hidden states using the Viterbi algorithm.
 
-
-
-
-
-
+# main class
+if __name__ == "__main__":
+    trans, emissions = HMM().load("cat")
+    print(trans)
