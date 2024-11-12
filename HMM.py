@@ -82,14 +82,14 @@ class HMM:
         determine the probability of the sequence."""
         observations = sequence.outputseq
         num_states = len(self.transitions)  # Number of rows (states)
-        num_observations = len(observations)  # Number of columns (time steps)
+        num_observations = len(observations)  # Number of columns (number of observations)
 
-        # Initialize the forward matrix with zeros
+        # Fill the initial matrix with zeros
         forwardMatrix = numpy.zeros((num_states, num_observations + 1))
-        forwardMatrix[0][0] = 1  # Start state probability (index 0, column 0)
+        forwardMatrix[0][0] = 1  # Set the start state probability
 
         # Convert the state dictionary keys to a list to access indices easily
-        states = list(self.transitions.keys())  # List of states
+        states = list(self.transitions.keys()) 
 
         for i in range(1, num_observations + 1):  # Loop through columns
             current_observation = observations[i - 1] # Get the current observation
@@ -97,7 +97,7 @@ class HMM:
                 if s == '#':
                     continue
                 sum = 0
-                for s2 in states:  # Loop through each previous state `s2`
+                for s2 in states:  # Loop through each previous state
                     if s2 == '#':
                         if i == 1:  # Only allow transitions from `#` at the first time step
                             s_idx = states.index(s)
