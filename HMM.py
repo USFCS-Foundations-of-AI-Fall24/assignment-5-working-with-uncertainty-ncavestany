@@ -78,10 +78,41 @@ class HMM:
         return Sequence(stateSeq, outputSeq)
 
     def forward(self, sequence):
-        pass
-    ## you do this: Implement the forward algorithm. Given a Sequence with a list of emissions,
-    ## determine the most likely sequence of states.
+        """Implements the forward algorithm. Given a Sequence with a list of emissions,
+        determine the probability of the sequence."""
+        observations = sequence.outputseq
+        num_states = len(self.transitions)  # Number of rows (states)
+        num_observations = len(observations)  # Number of columns (time steps)
 
+        # Initialize the forward matrix with zeros
+        forwardMatrix = numpy.zeros((num_states, num_observations + 1))
+        forwardMatrix[0][0] = 1  # Start state probability (index 0, column 0)
+
+        # Convert the state dictionary keys to a list to access indices easily
+        states = list(self.transitions.keys())  # List of states
+
+        for i in range(1, num_observations + 1):  # Loop through columns
+            current_observation = observations[i - 1] # Get the current observation
+            for s in states:  
+                if s == '#':
+                    continue
+                sum = 0
+                for s2 in states:  # Loop through each previous state `s2`
+                    if s2 == '#':
+                        if i == 1:  # Only allow transitions from `#` at the first time step
+                            s_idx = states.index(s)
+                            s2_idx = states.index(s2)
+                            sum += forwardMatrix[s2_idx][i - 1] * self.transitions[s2][s] * self.emissions[s][current_observation]
+                    else:
+                        s_idx = states.index(s)
+                        s2_idx = states.index(s2)
+                        sum += forwardMatrix[s2_idx][i - 1] * self.transitions[s2][s] * self.emissions[s][current_observation]
+                forwardMatrix[s_idx][i] = round(sum, 4)
+                    
+        # Return the state with the highest possible value in the last column
+        highest_probability = numpy.argmax(forwardMatrix[:, num_observations])
+        most_probable_state = states[highest_probability]
+        return most_probable_state 
 
     def viterbi(self, sequence):
         pass
@@ -92,7 +123,11 @@ class HMM:
 if __name__ == "__main__":
     hmm = HMM()
     hmm.load("cat")
-    print(hmm.generate(10))
+    testSequence = hmm.generate(5)
+    print("Generated sequence:", testSequence.outputseq)
+    print("Most probable state:", hmm.forward(testSequence))
+
+
 
     
     
