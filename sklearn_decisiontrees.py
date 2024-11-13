@@ -1,5 +1,5 @@
 
-from sklearn.datasets import load_diabetes
+from sklearn.datasets import load_breast_cancer
 from sklearn import tree
 from sklearn.model_selection import KFold
 from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
@@ -11,8 +11,8 @@ import joblib
 ### This code shows how to use KFold to do cross_validation.
 ### This is just one of many ways to manage training and test sets in sklearn.
 
-diabetes = load_diabetes()
-X, y = diabetes.data, diabetes.target
+breast_cancer = load_breast_cancer()
+X, y = breast_cancer.data, breast_cancer.target
 scores = []
 kf = KFold(n_splits=5)
 for train_index, test_index in kf.split(X) :
