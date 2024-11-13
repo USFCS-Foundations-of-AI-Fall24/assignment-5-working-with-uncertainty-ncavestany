@@ -98,15 +98,9 @@ class HMM:
                     continue
                 sum = 0
                 for s2 in states:  # Loop through each previous state
-                    if s2 == '#':
-                        if i == 1:  # Only allow transitions from `#` at the first time step
-                            s_idx = states.index(s)
-                            s2_idx = states.index(s2)
-                            sum += forwardMatrix[s2_idx][i - 1] * self.transitions[s2][s] * self.emissions[s][current_observation]
-                    else:
-                        s_idx = states.index(s)
-                        s2_idx = states.index(s2)
-                        sum += forwardMatrix[s2_idx][i - 1] * self.transitions[s2][s] * self.emissions[s][current_observation]
+                    s_idx = states.index(s)
+                    s2_idx = states.index(s2)
+                    sum += forwardMatrix[s2_idx][i - 1] * self.transitions[s2][s] * self.emissions[s][current_observation]
                 forwardMatrix[s_idx][i] = round(sum, 4)
                     
         # Return the state with the highest possible value in the last column
@@ -115,9 +109,47 @@ class HMM:
         return most_probable_state 
 
     def viterbi(self, sequence):
-        pass
-    ## You do this. Given a sequence with a list of emissions, fill in the most likely
-    ## hidden states using the Viterbi algorithm.
+        ## You do this. Given a sequence with a list of emissions, fill in the most likely
+        ## hidden states using the Viterbi algorithm.
+        observations = sequence.outputseq
+        num_states = len(self.transitions)
+        num_observations = len(observations)
+        
+        matrix = numpy.zeros((num_states, num_observations + 1))
+        matrix[0][0] = 1 # start state probability
+        backpointers = numpy.zeros((num_states, num_observations + 1))
+        
+        states = list(self.transitions.keys())
+        
+        for i in range (1, num_observations + 1):
+            current_observation = observations[i - 1]
+            for s in states:
+                if s == '#':
+                    continue
+                max_prob = 0
+                max_state = 0
+                for s2 in states:
+                    s_idx = states.index(s)
+                    s2_idx = states.index(s2)
+                    prob = matrix[s2_idx][i - 1] * self.transitions[s2][s] * self.emissions[s][current_observation]
+                    if prob > max_prob:
+                        max_prob = prob
+                        max_state = s2_idx
+                matrix[s_idx][i] = max_prob
+                backpointers[s_idx][i] = max_state
+        
+        most_likely_sequence = []
+        most_likely_sequence.append(numpy.argmax(matrix[:, num_observations])) # get the most likely last state
+        for i in range(num_observations, 0, -1): # traverse the backpointers backwards
+            most_likely_sequence.append(int(backpointers[most_likely_sequence[-1]][i])) # get the most likely previous state
+        
+        most_likely_sequence.reverse() # reverse the list to show the most likely sequence in the correct order
+        for i in range(len(most_likely_sequence)):
+            most_likely_sequence[i] = states[most_likely_sequence[i]] # assign the state indices to the actual state names
+        
+        return most_likely_sequence
+        
+        
 
 # main class
 if __name__ == "__main__":
@@ -125,7 +157,9 @@ if __name__ == "__main__":
     hmm.load("cat")
     testSequence = hmm.generate(5)
     print("Generated sequence:", testSequence.outputseq)
-    print("Most probable state:", hmm.forward(testSequence))
+    print("Most probable final state:", hmm.forward(testSequence))
+    print("Most likely sequence:", hmm.viterbi(testSequence))
+    
 
 
 
