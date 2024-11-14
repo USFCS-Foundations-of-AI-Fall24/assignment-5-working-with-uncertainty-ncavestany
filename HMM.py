@@ -3,6 +3,7 @@ import argparse
 import codecs
 import os
 import numpy
+import argparse
 
 # Sequence - represents a sequence of hidden states and corresponding
 # output variables.
@@ -42,7 +43,6 @@ class HMM:
         emitFile = basename + ".emit"
         transFile = basename + ".trans"
 
-        
         with open(emitFile) as f:
             for line in f:
                 line = line.split()
@@ -93,15 +93,17 @@ class HMM:
 
         for i in range(1, num_observations + 1):  # Loop through columns
             current_observation = observations[i - 1] # Get the current observation
-            for s in states:  
+            for s in states:
                 if s == '#':
                     continue
                 sum = 0
                 for s2 in states:  # Loop through each previous state
                     s_idx = states.index(s)
-                    s2_idx = states.index(s2)
-                    sum += forwardMatrix[s2_idx][i - 1] * self.transitions[s2][s] * self.emissions[s][current_observation]
-                forwardMatrix[s_idx][i] = round(sum, 4)
+                    s2_idx = states.index(s2) 
+                    # check if [s2] is in the transitions dictionary and if the current observation is in the emissions dictionary
+                    if s in self.transitions[s2] and current_observation in self.emissions[s]:
+                        sum += forwardMatrix[s2_idx][i - 1] * self.transitions[s2][s] * self.emissions[s][current_observation]
+                forwardMatrix[s_idx][i] = sum
                     
         # Return the state with the highest possible value in the last column
         highest_probability = numpy.argmax(forwardMatrix[:, num_observations])
@@ -126,15 +128,16 @@ class HMM:
             for s in states:
                 if s == '#':
                     continue
-                max_prob = 0
                 max_state = 0
+                max_prob = 0
                 for s2 in states:
                     s_idx = states.index(s)
                     s2_idx = states.index(s2)
-                    prob = matrix[s2_idx][i - 1] * self.transitions[s2][s] * self.emissions[s][current_observation]
-                    if prob > max_prob:
-                        max_prob = prob
-                        max_state = s2_idx
+                    if s in self.transitions[s2] and current_observation in self.emissions[s]:
+                        prob = matrix[s2_idx][i - 1] * self.transitions[s2][s] * self.emissions[s][current_observation]
+                        if prob > max_prob:
+                            max_state = s2_idx
+                            max_prob = prob
                 matrix[s_idx][i] = max_prob
                 backpointers[s_idx][i] = max_state
         
@@ -144,6 +147,7 @@ class HMM:
             most_likely_sequence.append(int(backpointers[most_likely_sequence[-1]][i])) # get the most likely previous state
         
         most_likely_sequence.reverse() # reverse the list to show the most likely sequence in the correct order
+
         for i in range(len(most_likely_sequence)):
             most_likely_sequence[i] = states[most_likely_sequence[i]] # assign the state indices to the actual state names
         
@@ -153,12 +157,40 @@ class HMM:
 
 # main class
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run HMM algorithms on input data.")
+    parser.add_argument("basename", help="The base name for the .trans and .emit files (e.g., 'cat').")
+    parser.add_argument("--forward", help="Run the forward algorithm on the given file.", type=str)
+    parser.add_argument("--viterbi", help="Run the Viterbi algorithm on the given file.", type=str)
+    
+    args = parser.parse_args()
+    
     hmm = HMM()
-    hmm.load("cat")
-    testSequence = hmm.generate(5)
-    print("Generated sequence:", testSequence.outputseq)
-    print("Most probable final state:", hmm.forward(testSequence))
-    print("Most likely sequence:", hmm.viterbi(testSequence))
+    hmm.load(args.basename)
+    
+    lander_successful_states = ['2,5', '3,4', '4,3', '4,4', '5,5']
+    
+    if args.forward:
+        with open(args.forward) as file:
+            sequences = [line.strip().split() for line in file]
+            for sequence in sequences:
+                if len(sequence) != 0:
+                    print("Sequence: ", sequence)
+                    print("Most likely final state:", hmm.forward(Sequence(list(hmm.transitions.keys()), sequence)))
+                    if args.basename == "lander":
+                        if hmm.forward(Sequence(list(hmm.transitions.keys()), sequence)) in lander_successful_states:
+                            print("Lander successfully landed.")
+                        else:
+                            print("Lander crashed")
+                    
+    
+    if args.viterbi:
+        with open(args.viterbi) as file:
+            sequences = [line.strip().split() for line in file]
+            for sequence in sequences:
+                if len(sequence) != 0:
+                    print("Sequence: ", sequence)
+                    print("Most likely sequence of states:", hmm.viterbi(Sequence(list(hmm.transitions.keys()), sequence)))
+    
     
 
 

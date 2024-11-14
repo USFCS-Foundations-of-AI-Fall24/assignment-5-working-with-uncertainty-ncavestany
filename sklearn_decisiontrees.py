@@ -18,14 +18,14 @@ kf = KFold(n_splits=5)
 for train_index, test_index in kf.split(X) :
     X_train, X_test, y_train, y_test = \
         (X[train_index], X[test_index], y[train_index], y[test_index])
-    clf = tree.DecisionTreeClassifier()
+    clf = RandomForestClassifier(n_estimators=50, criterion='entropy')
     clf.fit(X_train, y_train)
     scores.append(clf.score(X_test, y_test))
 
 print(scores)
 
-## Part 2. This code (from https://scikit-learn.org/1.5/auto_examples/ensemble/plot_forest_hist_grad_boosting_comparison.html)
-## shows how to use GridSearchCV to do a hyperparameter search to compare two techniques.
+# Part 2. This code (from https://scikit-learn.org/1.5/auto_examples/ensemble/plot_forest_hist_grad_boosting_comparison.html)
+# shows how to use GridSearchCV to do a hyperparameter search to compare two techniques.
 from sklearn.datasets import load_breast_cancer
 
 X,y = load_breast_cancer(return_X_y=True, as_frame=True)
@@ -42,10 +42,10 @@ models = {
     ),
 }
 param_grids = {
-    "Random Forest": {"n_estimators": [10, 20, 50, 100]},
-    "Hist Gradient Boosting": {"max_iter": [10, 20, 50, 100, 300, 500]},
+    "Random Forest": {"n_estimators": [5, 10, 15, 20]},
+    "Hist Gradient Boosting": {"max_iter": [25, 50, 75, 100]},
 }
-cv = KFold(n_splits=2, shuffle=True, random_state=0)
+cv = KFold(n_splits=5, shuffle=True, random_state=0)
 
 results = []
 for name, model in models.items():
